@@ -1,12 +1,12 @@
-//your code here
 document.addEventListener("DOMContentLoaded", () => {
     const gameContainer = document.getElementById("gameContainer");
     const scoreElement = document.getElementById("score");
-
     const gridSize = 40;
     const cellSize = 10;
+    const snakeSpeed = 100;
+    
     let snake = [{ row: 20, col: 1 }];
-    let food = { row: Math.floor(Math.random() * gridSize), col: Math.floor(Math.random() * gridSize) };
+    let food = generateFood();
     let direction = "right";
     let score = 0;
 
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ateFood) {
             score++;
             updateScore();
-            generateFood();
+            food = generateFood();
         } else {
             snake.pop();
         }
@@ -74,14 +74,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function generateFood() {
-        food = { row: Math.floor(Math.random() * gridSize), col: Math.floor(Math.random() * gridSize) };
-        const pixel = document.getElementById(`pixel${food.row}-${food.col}`);
-        if (pixel.classList.contains("snakeBodyPixel")) {
-            generateFood();
-        }
-        drawFood();
+        let newFood;
+        do {
+            newFood = { row: Math.floor(Math.random() * gridSize), col: Math.floor(Math.random() * gridSize) };
+        } while (isFoodOnSnake(newFood));
+
+        return newFood;
     }
 
+    function isFoodOnSnake(newFood) {
+        return snake.some(segment => segment.row === newFood.row && segment.col === newFood.col);
+    }
+ 
     createGrid();
     drawSnake();
     drawFood();
@@ -90,9 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Start the game loop
     setInterval(() => {
         moveSnake();
-    }, 100);
+    }, snakeSpeed);
 
-    // Handle keyboard input to change direction
+    // Handle keyboard input to change direction 
     document.addEventListener("keydown", (event) => {
         if (event.key === "ArrowUp" && direction !== "down") direction = "up";
         if (event.key === "ArrowDown" && direction !== "up") direction = "down";
